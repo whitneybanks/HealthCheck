@@ -43,6 +43,7 @@ namespace Healthcheck
             }
 
             app.UseHttpsRedirection();
+            // app.UseStaticFiles();
             app.UseStaticFiles();
             if (!env.IsDevelopment())
             {
