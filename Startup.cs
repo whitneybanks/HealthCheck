@@ -44,19 +44,18 @@ namespace Healthcheck
 
             app.UseHttpsRedirection();
             // app.UseStaticFiles();
-            app.UseStaticFiles();
-            if (!env.IsDevelopment())
+            app.UseStaticFiles((new StaticFileOptions()
             {
-                app.UseSpaStaticFiles();
-            }
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                OnPrepareResponse = (context) =>
+                {
+                    // Retrieve cache configuration from appsettings.json
+                    context.Context.Response.Headers["Cache-Control"] =
+                    Configuration["StaticFiles:Headers:Cache-Control"];
+                    context.Context.Response.Headers["Pragma"] =
+                    Configuration["StaticFiles:Headers:Pragma"];
+                    context.Context.Response.Headers["Expires"] =
+                    Configuration["StaticFiles:Headers:Expires"];
+                }
             });
 
             app.UseSpa(spa =>
