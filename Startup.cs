@@ -26,6 +26,7 @@ namespace Healthcheck
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+            services.AddHealthChecks();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +42,7 @@ namespace Healthcheck
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseHealthChecks("/hc");
             app.UseHttpsRedirection();
             // app.UseStaticFiles();
             app.UseStaticFiles((new StaticFileOptions()
@@ -56,7 +57,7 @@ namespace Healthcheck
                     context.Context.Response.Headers["Expires"] =
                     Configuration["StaticFiles:Headers:Expires"];
                 }
-            });
+            }));
 
             app.UseSpa(spa =>
             {
