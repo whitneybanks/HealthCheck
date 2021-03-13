@@ -8,8 +8,27 @@ namespace HealthCheck
 {
     public class ICMPHealthCheck : IHealthCheck
     {
-        private string Host = "www.does-not-exist.com";
-        private int Timeout = 300;
+        private string v;
+        private int v1;
+
+        private string Host { get; set; }
+        private int Timeout { get; set; }
+
+        public ICMPHealthCheck (string host, int timeout, string v)
+        {
+            Host = host;
+            Timeout = timeout;
+        }
+
+        public ICMPHealthCheck(string v)
+        {
+            this.v = v;
+        }
+
+        public ICMPHealthCheck(string v, int v1) : this(v)
+        {
+            this.v1 = v1;
+        }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
@@ -21,17 +40,31 @@ namespace HealthCheck
                     switch (reply.Status)
                     {
                         case IPStatus.Success:
+                            var msg = String.Format(
+                                "IMCP to {0} took {1} ms.",
+                                Host,
+                                   reply.RoundtripTime);
+
                             return (reply.RoundtripTime > Timeout)
-                            ? HealthCheckResult.Degraded()
-                            : HealthCheckResult.Healthy();
+                            ? HealthCheckResult.Degraded(msg)
+                            : HealthCheckResult.Healthy(msg);
+
                         default:
-                            return HealthCheckResult.Unhealthy();
+                            var err = String.Format(
+                                "IMCP to {0} failed: {1}",
+                                Host,
+                                reply.Status);
+                            return HealthCheckResult.Unhealthy(err);
                     }
                 }
             }
             catch (Exception e)
             {
-                return HealthCheckResult.Unhealthy();
+                var err = String.Format(
+                    "IMCP to {0} failed: {1}",
+                    Host,
+                    e.Message);
+                return HealthCheckResult.Unhealthy(err);
             }
         }
     }
