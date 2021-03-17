@@ -22,8 +22,14 @@ namespace Healthcheck
         public void ConfigureServices(IServiceCollection services)
         {
             /// ...existing code...
-
-            services.AddHealthChecks()
+                services.AddControllersWithViews();
+                // In production, the Angular files will be served
+                // from this directory
+                services.AddSpaStaticFiles(configuration =>
+                {
+                configuration.RootPath = "ClientApp/dist";
+                });
+                services.AddHealthChecks()
                 .AddCheck("ICMP_01", new ICMPHealthCheck("www.ryadel.com", 100))
                 .AddCheck("ICMP_02", new ICMPHealthCheck("www.google.com", 100))
                 .AddCheck("ICMP_03", new ICMPHealthCheck("www.does-not-exist.com", 100));        
@@ -32,45 +38,20 @@ namespace Healthcheck
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-            app.UseHealthChecks("/hc");
-            app.UseHttpsRedirection();
-            // app.UseStaticFiles();
-            app.UseStaticFiles((new StaticFileOptions()
-            {
-                OnPrepareResponse = (context) =>
-                {
-                    // Retrieve cache configuration from appsettings.json
-                    context.Context.Response.Headers["Cache-Control"] =
-                    Configuration["StaticFiles:Headers:Cache-Control"];
-                    context.Context.Response.Headers["Pragma"] =
-                    Configuration["StaticFiles:Headers:Pragma"];
-                    context.Context.Response.Headers["Expires"] =
-                    Configuration["StaticFiles:Headers:Expires"];
-                }
-            }));
+            /// ...existing code...
+            
+            app.UseRouting();
 
-            app.UseSpa(spa =>
+            app.UseHealthChecks("/hc", new CustomHealthCheckOptions());
+
+            app.UseEndpoints (endpoints =>
             {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
             });
+
+            /// ...existing code...
         }
     }
 }
