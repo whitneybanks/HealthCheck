@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace AngularSpa.Controllers
@@ -22,5 +21,9 @@ namespace AngularSpa.Controllers
             var parameters = ClientRequestParametersProvider.GetClientParameters(HttpContext, clientId);
             return Ok(parameters);
         }
+    }
+
+    public interface IClientRequestParametersProvider
+    {
     }
 }
