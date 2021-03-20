@@ -23,4 +23,8 @@ namespace AngularSpa.Controllers
             return Ok(parameters);
         }
     }
+
+    public interface IClientRequestParametersProvider
+    {
+    }
 }
